@@ -8,6 +8,7 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var songRouter = require('./routes/song/getsong.js')
 var uploadRouter = require('./routes/song/upload.js')
+var songListRouter=require('./routes/songlist/getsonglist.js')
 
 var app = express();
 
@@ -39,6 +40,7 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/song',songRouter);
 app.use('/upload',uploadRouter);
+app.use('/songlist',songListRouter);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
