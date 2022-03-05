@@ -11,7 +11,7 @@ router.get('/getlyricbysongname', (req, res) => {
         data.toString().split("\n").forEach(element=>{
           let item=element.split(']');//根据右方括号分离出时间和歌词
           result.push([item[0].substring(1),item[1]]);//舍弃左方括号,组合
-        });git remote set-url origin git
+        });
         res.send(result);
     });
 
