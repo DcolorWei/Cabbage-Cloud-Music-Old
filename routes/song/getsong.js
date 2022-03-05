@@ -1,11 +1,7 @@
 //获取音乐文件
 var express = require('express');
 var router = express.Router();
-var path = require('path')
 var curd = require('../../module/mysql/curd.js').con;
-
-const STOCK_PATH = '/root/music/stock';
-
 
 router.get('/', (req, res) => {
     res.send('<h1>111</h1>')
@@ -21,6 +17,8 @@ router.get('/getsongbyrandom', (req, res) => {
 
 
 router.get('/getsongbyid', (req, res) => {
+    req.query.id=req.query.id.replaceAll(" ","+");
+    console.log((req.query.id))
     curd.query('SELECT `id`,`name`,`author`,`album` FROM songinfo WHERE `id`= ' + req.query.id, (err, result) => {
         if (err) {
             return;
@@ -35,7 +33,8 @@ router.get('/getsongfilebyid', (req, res) => {
         if (err) {
             return;
         }
-        res.sendFile(STOCK_PATH + result[0].songfilepath)
+        console.log(req.query);
+        res.sendFile(result[0].songfilepath)
     })
 })
 
@@ -44,6 +43,7 @@ router.get('/getsongbysearch', (req, res) => {
     console.log(req.query);
     curd.query('SELECT * FROM songinfo WHERE `name` LIKE "%' + req.query.search + '%" UNION SELECT * FROM songinfo WHERE `author` LIKE "%' + req.query.search + '%" LIMIT ' + req.query.page * 10 + ',' + req.query.item, (err, result) => {
         if (err) {
+            console.log(err);
             return;
         }
         res.send(result)

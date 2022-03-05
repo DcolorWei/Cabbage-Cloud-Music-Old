@@ -12,32 +12,30 @@ router.get('/', function (req, res, next) {
     res.send('<form action="/upload/file" enctype="multipart/form-data" method="POST"><input type="file" name="image"><input type="submit" value="上传"></form>')
 });
 
-router.post('/file', upload.single("image"), function (req, res) {
+router.post('/file', upload.single("image"), function (req, res, next) {
     //文件路径
     fs.rename(`stock/song/${req.file.filename}`, `stock/song/${req.file.originalname}`, (err) => {//重命名
         if (!err) {
             jsmediatags.read(`stock/song/${req.file.originalname}`, {//读取音乐文件信息
                 onSuccess: function (tag) {
-                    if (!tag.tags.title) {
-                        fs.rename(`stock/song/${req.file.filename}`, `stock/wait/${req.file.originalname}`, (err) => {return;});
-                    };//没有歌曲详细信息，为待处理音乐文件，移动进入不纳入数据库
+                    if (!tag.tags.title) return;//没有歌曲详细信息，为待处理音乐文件，不纳入数据库
                     let sql = "INSERT INTO songinfo(`id`,`name`,`author`,`album`,`songfilepath`) VALUES(?,?,?,?,?)";
                     let params = [
-                        //base64生成唯一id且作为键，避免相同歌曲上传
-                        Buffer.from(tag.tags.title + tag.tags.artist + tag.tags.album).toString('base64'), 
+                        Buffer.from(tag.tags.title + tag.tags.artist+tag.tags.album).toString('base64'), //避免相同文件上传
                         tag.tags.title,
-                        tag.tags.artist,
+                        tag.tags.artist, 
                         tag.tags.album,
                         `/song/${req.file.originalname}`
-                    ];
+                        ];
                     curd.query(sql, params, function (err, result) { return; })
                 },
                 onError: function (error) {
-                    return;
+                    console.log(':(', error.type, error.info);
                 }
             })
         }
     });
+
     res.send('<form action="/upload/file" enctype="multipart/form-data" method="POST"><input type="file" name="image"><input type="submit" value="上传"></form>')
 });
 

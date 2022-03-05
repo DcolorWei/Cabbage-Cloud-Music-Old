@@ -9,7 +9,7 @@ var usersRouter = require('./routes/users');
 var songRouter = require('./routes/song/getsong.js')
 var uploadRouter = require('./routes/song/upload.js')
 var songListRouter=require('./routes/songlist/getsonglist.js')
-
+var lyric=require('./routes/lyric/getlyric.js')
 var app = express();
 
 
@@ -41,6 +41,7 @@ app.use('/users', usersRouter);
 app.use('/song',songRouter);
 app.use('/upload',uploadRouter);
 app.use('/songlist',songListRouter);
+app.use('/lyric',lyric);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
