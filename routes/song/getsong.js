@@ -3,10 +3,8 @@ var express = require('express');
 var router = express.Router();
 var curd = require('../../module/mysql/curd.js').con;
 
-router.get('/', (req, res) => {
-    res.send('<h1>111</h1>')
-})
 router.get('/getsongbyrandom', (req, res) => {
+    
     curd.query('select `id`,`name`,`author`,`album` from songinfo', (err, result) => {
         if (err) {
             return;
@@ -14,7 +12,6 @@ router.get('/getsongbyrandom', (req, res) => {
         res.send(result[Math.floor(Math.random() / 10 * result.length)]);
     })
 })
-
 
 router.get('/getsongbyid', (req, res) => {
     req.query.id=req.query.id.replaceAll(" ","+");

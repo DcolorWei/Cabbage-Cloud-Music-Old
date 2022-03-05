@@ -3,34 +3,58 @@ var fs = require("fs");
 var path = require("path");
 var list = [];
 var curd = require('./module/mysql/curd.js').con;
-function listFile(dir) {
+
+//设置异步防止数据库并发过大
+function insert(fullpath) {
+    return new Promise(function (resolve, reject) {
+        jsmediatags.read(fullpath, {//读取音乐文件信息
+            onSuccess: function (tag) {
+                if (!tag.tags.title) {
+                    let pathArr = fullpath.split('/');
+                    pathArr[pathArr.length - 2] = 'abnormal';
+                    fs.rename(fullpath, pathArr.join('/'), (err) => { });
+                    console.log(`${fullpath} 异常，已移入待处理文件夹`);
+                    resolve("abnormal file");
+                    return;
+                };//没有歌曲详细信息，为待处理音乐文件，不纳入数据库
+                let sql = "INSERT INTO songinfo(`id`,`name`,`author`,`album`,`songfilepath`) VALUES(?,?,?,?,?)";
+                let songid = Buffer.from(tag.tags.title + tag.tags.artist + tag.tags.album).toString('base64').replaceAll('+', '');//清除加号
+                let params = [
+                    songid, //避免相同文件上传
+                    tag.tags.title,
+                    tag.tags.artist,
+                    tag.tags.album,
+                    fullpath
+                ];
+                curd.query(sql, params, (err, res) => {
+                    if (err) {
+                        let pathArr = fullpath.split('/');
+                        pathArr[pathArr.length - 2] = 'duplicate';
+                        pathArr[pathArr.length - 1] = Date.now() + pathArr[pathArr.length - 1];
+                        fs.rename(fullpath, pathArr.join('/'), (err) => { });
+                        console.log(`${fullpath} 已存在，已移入重复文件夹`);
+                        resolve("abnormal file");
+                        resolve("该条目已存在");
+                    }
+                    else {
+                        resolve("已录入");
+                    }
+                })
+            }
+        })
+    })
+}
+async function listFile(dir) {
     var arr = fs.readdirSync(dir);
-    arr.forEach(async function (item) {
+    for (item of arr) {
         var fullpath = path.join(dir, item);
         var stats = fs.statSync(fullpath);
-        if (stats.isDirectory()) {
+        if (stats.isDirectory()) {//判断是否是文件，是则继续向下遍历
             listFile(fullpath);
         } else {
-            jsmediatags.read(fullpath, {//读取音乐文件信息
-                onSuccess: function (tag) {
-                    console.log(fullpath)
-                    if (!tag.tags.title) return;//没有歌曲详细信息，为待处理音乐文件，不纳入数据库
-                    let sql = "INSERT INTO songinfo(`id`,`name`,`author`,`album`,`songfilepath`) VALUES(?,?,?,?,?)";
-                    let params = [
-                        Buffer.from(tag.tags.title + tag.tags.artist+tag.tags.album).toString('base64'), //避免相同文件上传
-                        tag.tags.title,
-                        tag.tags.artist, 
-                        tag.tags.album, 
-                        fullpath
-                        ];
-                    curd.query(sql, params, function (err, result) { return; })
-                },
-                onError: function (error) {
-                    console.log(':(', error.type, error.info);
-                }
-            })
+            await insert(fullpath);
         }
-    });
+    };
     return list;
 }
 listFile("/root/music/stock/song");

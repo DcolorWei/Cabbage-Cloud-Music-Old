@@ -12,30 +12,15 @@ router.get('/', function (req, res, next) {
     res.send('<form action="/upload/file" enctype="multipart/form-data" method="POST"><input type="file" name="image"><input type="submit" value="上传"></form>')
 });
 
-router.post('/file', upload.single("image"), function (req, res, next) {
+router.post('/file', upload.single("image"), function (req, res) {
     //文件路径
-    fs.rename(`stock/song/${req.file.filename}`, `stock/song/${req.file.originalname}`, (err) => {//重命名
-        if (!err) {
-            jsmediatags.read(`stock/song/${req.file.originalname}`, {//读取音乐文件信息
-                onSuccess: function (tag) {
-                    if (!tag.tags.title) return;//没有歌曲详细信息，为待处理音乐文件，不纳入数据库
-                    let sql = "INSERT INTO songinfo(`id`,`name`,`author`,`album`,`songfilepath`) VALUES(?,?,?,?,?)";
-                    let params = [
-                        Buffer.from(tag.tags.title + tag.tags.artist+tag.tags.album).toString('base64'), //避免相同文件上传
-                        tag.tags.title,
-                        tag.tags.artist, 
-                        tag.tags.album,
-                        `/song/${req.file.originalname}`
-                        ];
-                    curd.query(sql, params, function (err, result) { return; })
-                },
-                onError: function (error) {
-                    console.log(':(', error.type, error.info);
-                }
-            })
+    fs.readFile(`stock/song/${req.file.originalname}`, (err) => {
+        if (err) {//不存在文件，移动进入音乐文件夹
+            fs.rename(`stock/song/${req.file.filename}`, `stock/song/${req.file.originalname}`, (err) => { });
         }
+        //存在同名文件，移动进入重复文件夹,利用时间戳命名
+        fs.rename(`stock/song/${req.file.filename}`, `stock/duplicate/${Date.now()}/${req.file.originalname}`, (err) => { });
     });
-
     res.send('<form action="/upload/file" enctype="multipart/form-data" method="POST"><input type="file" name="image"><input type="submit" value="上传"></form>')
 });
 
