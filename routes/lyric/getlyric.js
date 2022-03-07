@@ -6,7 +6,8 @@ var fs = require('fs');
 router.get('/getlyricbysongname', (req, res) => {
     fs.readFile(`stock/lyric/${req.query.songname}.lrc`, function (err, data) {
         if (err) {
-            return console.error(err);
+            res.send('none');
+            return;
         }
         let result = [];
         iconv.decode(data,'gbk').toString().split("\n").forEach(element => {
