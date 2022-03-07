@@ -6,7 +6,7 @@ var curd = require('./module/mysql/curd.js').con;
 
 //设置异步防止数据库并发过大
 function insert(fullpath) {
-    return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve) {
         jsmediatags.read(fullpath, {//读取音乐文件信息
             onSuccess: function (tag) {
                 if (!tag.tags.title) {
@@ -26,7 +26,7 @@ function insert(fullpath) {
                     tag.tags.album,
                     fullpath
                 ];
-                curd.query(sql, params, (err, res) => {
+                curd.query(sql, params, (err) => {
                     if (err) {
                         let pathArr = fullpath.split('/');
                         pathArr[pathArr.length - 2] = 'duplicate';
