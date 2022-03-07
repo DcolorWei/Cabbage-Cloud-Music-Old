@@ -28,12 +28,13 @@ function insert(fullpath) {
                 ];
                 curd.query(sql, params, (err) => {
                     if (err) {
-                        let pathArr = fullpath.split('/');
-                        pathArr[pathArr.length - 2] = 'duplicate';
-                        pathArr[pathArr.length - 1] = Date.now() + pathArr[pathArr.length - 1];
-                        fs.rename(fullpath, pathArr.join('/'), (err) => { });
-                        console.log(`${fullpath} 已存在，已移入重复文件夹`);
-                        resolve("abnormal file");
+                        //暂时有问题
+                        // let pathArr = fullpath.split('/');
+                        // pathArr[pathArr.length - 2] = 'duplicate';
+                        // pathArr[pathArr.length - 1] = Date.now() + pathArr[pathArr.length - 1];
+                        // fs.copyFile(fullpath, pathArr.join('/'), (err) => { });
+                        // console.log(`${fullpath} 已存在，已复制入重复文件夹`);
+                        // resolve("abnormal file");
                         resolve("该条目已存在");
                     }
                     else {
