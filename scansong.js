@@ -56,6 +56,7 @@ async function listFile(dir) {
             await insert(fullpath);
         }
     };
+    console.log('扫描完成！');
     return list;
 }
 listFile("/root/music/stock/song");

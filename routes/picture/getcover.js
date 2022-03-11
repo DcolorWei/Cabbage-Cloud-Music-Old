@@ -2,36 +2,32 @@
 var express = require('express');
 var router = express.Router();
 var curd = require('../../module/mysql/curd.js').con;
+var jsmediatags = require("jsmediatags");
 
-router.get('/getsongbyrandom', (req, res) => {
-    
-    curd.query('select `id`,`name`,`author`,`album` from songinfo', (err, result) => {
-        if (err) {
-            return;
-        }
-        res.send(result[Math.floor(Math.random() / 10 * result.length)]);
-    })
+var { Blob } = require('blob-polyfill');
+
+global['Blob'] = Blob
+
+router.get('/', (req, res) => {
+    res.send('cover')
 })
-
-router.get('/getsongbyid', (req, res) => {
-    req.query.id=req.query.id.replaceAll(" ","+");
-    console.log('byid',req.query.id)
-    curd.query('SELECT `id`,`name`,`author`,`album` FROM songinfo WHERE `id`= ' + req.query.id, (err, result) => {
-        if (err) {
-            return;
-        }
-        res.send(result[0]);
-    })
-})
-
-//获得音乐文件
-router.get('/getsongfilebyid', (req, res) => {
+//获得音乐封面
+router.get('/getsongcoverbyid', (req, res) => {
     curd.query('SELECT * FROM songinfo WHERE `id`= "' + req.query.id + '"', (err, result) => {
         if (err) {
             return;
         }
-        if(result[0]!==undefined){
-            res.sendFile(result[0].songfilepath)
+        if (result[0] !== undefined) {
+            jsmediatags.read(result[0].songfilepath, {//读取音乐文件信息
+                onSuccess: function (tag) {
+                    let data = tag.tags.picture.data;
+                    res.send('data:image/png;base64,' + new Buffer(data).toString('base64'));
+                    return;
+                }
+            })
         }
+
     })
 })
+
+module.exports = router;

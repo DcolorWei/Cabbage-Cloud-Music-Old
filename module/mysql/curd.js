@@ -1,13 +1,5 @@
 var mysql = require('mysql');
-var con = mysql.createConnection({
-    host: 'localhost',
-    port: '8888',
-    user: 'root',
-    password: 'wdc20140772',
-    database: 'music'
-});
-
+var config = require('../../config.js')
+var con = mysql.createConnection(config.MYSQL_INFO);
 con.connect();
-
-
 exports.con = con;
