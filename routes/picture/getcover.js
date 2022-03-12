@@ -1,10 +1,12 @@
 //获取音乐文件
 var express = require('express');
 var router = express.Router();
+var fs = require('fs')
 var curd = require('../../module/mysql/curd.js').con;
 var jsmediatags = require("jsmediatags");
 
 var { Blob } = require('blob-polyfill');
+const { send } = require('process');
 
 global['Blob'] = Blob
 
@@ -20,9 +22,14 @@ router.get('/getsongcoverbyid', (req, res) => {
         if (result[0] !== undefined) {
             jsmediatags.read(result[0].songfilepath, {//读取音乐文件信息
                 onSuccess: function (tag) {
-                    let data = tag.tags.picture.data;
-                    res.send('data:image/png;base64,' + new Buffer(data).toString('base64'));
-                    return;
+                    res.send(tag)
+                    if (tag.picture !== undefined) {
+                        let data = tag.tags.picture.data;
+                        res.send(new Buffer(data))//传输图片二进制
+                        return;
+                    } else {//该音乐文件不存在图片
+                        res.send(new Buffer(0))
+                    }
                 }
             })
         }

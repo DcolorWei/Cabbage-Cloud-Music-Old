@@ -8,14 +8,25 @@
 
 
 #### 数据库搭建
-首先要确定服务器安装了mysql服务，请在module/mysql/curd.js文件内配置好数据库信息，数据库表名为songinfo，表结构为id|name|author|album|songfilepath，自定义方法还未更新
+确定服务器已安装mysql，数据库表名为songinfo，表结构为id|name|author|album|songfilepath
 
 #### 服务端搭建教程
-1. npm run install
-2. npm start  
-默认端口为3000，
+1.安装依赖 
+npm run install  
+2.修改config文件  
+请在该文件下编写服务器信息与数据库信息  
+2.启动项目  
+npm start  
+默认端口为3000
+
+#### 使用技巧
+1.上传音乐
+可以将音乐文件直接批量上传入stock/song文件夹，然后使用npm run scan命令扫描以同步数据库
+2.获取歌词
+将lrc格式歌词移动如stock/lyric文件夹，歌词需与mp3文件同名
 
 #### 接口文档
+更多使用技巧或部署说明请参考接口文档
 https://www.apifox.cn/apidoc/shared-4044c07b-cb1f-4fb2-a929-46c0191dfe0f
 （其实是开发人员懒得手写了）
   

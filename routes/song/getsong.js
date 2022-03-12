@@ -38,13 +38,13 @@ router.get('/getsongfilebyid', (req, res) => {
 
 //搜索
 router.get('/getsongbysearch', (req, res) => {
-    console.log('bysearch',req.query);
-    curd.query('SELECT * FROM songinfo WHERE `name` LIKE "%' + req.query.search + '%" UNION SELECT * FROM songinfo WHERE `author` LIKE "%' + req.query.search + '%" LIMIT ' + req.query.page * 10 + ',' + req.query.item, (err, result) => {
+    console.log('searchinfo',req.query);
+    curd.query('SELECT * FROM songinfo WHERE `name` LIKE "%' + req.query.search + '%" UNION SELECT * FROM songinfo WHERE `author` LIKE "%' + req.query.search +'%"' , (err, result) => {
         if (err) {
             console.log(err);
             return;
         }
-        res.send(result)
+        res.send(result.slice(req.query.page*req.query.item,(req.query.page+1)*req.query.item))
     })
 })
 
